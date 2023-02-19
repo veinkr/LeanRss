@@ -2,7 +2,6 @@
 
 from leancloud import Engine
 from leancloud import Object
-from leancloud import LeanEngineError
 import os
 import requests
 import feedparser
