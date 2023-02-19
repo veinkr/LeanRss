@@ -37,7 +37,7 @@ def get_rss_content(rss_name: str, link: str, max_time: datetime):
             title = html_clean(new["title"]).strip()
             link = new.get("link")
             summary = html_clean(new.get("summary")).strip()
-            msg = f"""*{rss_name}*\n[{title}]({link})\n{summary[:100]}\n{publish_time.strftime("%Y-%m-%d %Y:%M:%S")}"""
+            msg = f"""*{rss_name}*\n[{title}]({link})\n{summary[:100]}\nTime:{publish_time.strftime("%Y-%m-%d %H:%M:%S")}"""
             tg(msg)
 
             rss = RSS()
