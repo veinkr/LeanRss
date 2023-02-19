@@ -14,5 +14,3 @@ sockets = Sockets(app)
 @app.route('/')
 def index():
     return "Hello, Rss"
-git config --global user.email "yhf2lj@gmail.com"
-  git config --global user.name "veinkr"
