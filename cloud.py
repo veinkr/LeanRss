@@ -25,14 +25,16 @@ def html_clean(html):
 
 
 @retry(stop=stop_after_attempt(7), wait=wait_exponential(multiplier=1, min=4, max=20))
-def tg(message):
+def tg(message, preview=False):
     TG_BOT = os.environ['TG_BOT']
     chat_id = os.environ['CHAT_ID']
-    url = f"https://api.telegram.org/bot{TG_BOT}/sendMessage?disable_web_page_preview=true&parse_mode=Markdown&chat_id={chat_id}&text={message}"
+    url = f"https://api.telegram.org/bot{TG_BOT}/sendMessage?parse_mode=Markdown&chat_id={chat_id}&text={message}"
+    if not preview:
+        url += "&disable_web_page_preview=true"
     requests.get(url=url)
 
 
-def get_rss_content(rss_name: str, link: str, max_time: datetime):
+def get_rss_content(rss_name: str, link: str, max_time: datetime, preview: bool = False):
     feed = feedparser.parse(link)
     for new in feed["entries"]:
         publish_time = time_parse(new["published"])
@@ -41,7 +43,7 @@ def get_rss_content(rss_name: str, link: str, max_time: datetime):
             link = new.get("link")
             summary = html_clean(new.get("summary")).strip()
             msg = f"""*{rss_name}*\n[{title}]({link})\n{summary[:100]}\nTime: {publish_time.strftime("%Y-%m-%d %H:%M:%S")}"""
-            tg(msg)
+            tg(msg, preview)
 
             rss = RSS()
             rss.set("rss_name", rss_name)
@@ -68,13 +70,13 @@ def get_max_time(rss_name):
 @engine.define
 def pull_rss(**params):
     rss_list = [
-        ("电鸭", "https://rsshub.app/eleduck/jobs"),
-        ("AI研习社-New", "https://rsshub.app/aiyanxishe/all/new"),
-        ("远程.work", "https://rsshub.app/remote-work/all"),
-        ("500px-部落影集", "https://rsshub.app/500px/tribe/set/f5de0b8aa6d54ec486f5e79616418001"),
-        ("DailyArt 每日艺术", "https://rsshub.app/dailyart/zh"),
-        ("Bing 壁纸", "https://rsshub.app/bing")
+        ("电鸭", "https://rsshub.app/eleduck/jobs", False),
+        ("AI研习社-New", "https://rsshub.app/aiyanxishe/all/new", False),
+        ("远程.work", "https://rsshub.app/remote-work/all", False),
+        ("500px-部落影集", "https://rsshub.app/500px/tribe/set/f5de0b8aa6d54ec486f5e79616418001", True),
+        ("DailyArt 每日艺术", "https://rsshub.app/dailyart/zh", True),
+        ("Bing 壁纸", "https://rsshub.app/bing", True)
     ]
-    for rss_name, link in rss_list:
+    for rss_name, link, preview in rss_list:
         max_time = get_max_time(rss_name)
-        get_rss_content(rss_name, link, max_time)
+        get_rss_content(rss_name, link, max_time, preview)
