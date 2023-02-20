@@ -31,7 +31,8 @@ def tg(message, preview=False):
     url = f"https://api.telegram.org/bot{TG_BOT}/sendMessage?parse_mode=Markdown&chat_id={chat_id}&text={message}"
     if not preview:
         url += "&disable_web_page_preview=true"
-    requests.get(url=url)
+    response = requests.get(url=url)
+    return response.ok
 
 
 def get_rss_content(rss_name: str, link: str, max_time: datetime, preview: bool = False):
@@ -43,16 +44,16 @@ def get_rss_content(rss_name: str, link: str, max_time: datetime, preview: bool 
             link = new.get("link")
             summary = html_clean(new.get("summary")).strip()
             msg = f"""*{rss_name}*\n[{title}]({link})\n{summary[:100]}\nTime: {publish_time.strftime("%Y-%m-%d %H:%M:%S")}"""
-            tg(msg, preview)
-
-            rss = RSS()
-            rss.set("rss_name", rss_name)
-            rss.set("title", title)
-            rss.set("publish_time", publish_time)
-            rss.set("summary", summary)
-            rss.set("link", link)
-            rss.save()
-            logging.info(f"{rss_name}{title}{link}")
+            if tg(msg, preview):
+                logging.info(f"{rss_name}{title}{link}")
+                rss = RSS()
+                rss.set("rss_name", rss_name)
+                rss.set("title", title)
+                rss.set("publish_time", publish_time)
+                rss.set("summary", summary)
+                rss.set("link", link)
+                rss.save()
+            
             time_sleep(2)
 
 
