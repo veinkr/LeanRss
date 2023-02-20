@@ -28,10 +28,16 @@ def html_clean(html):
 def tg(message, preview=False):
     TG_BOT = os.environ['TG_BOT']
     chat_id = os.environ['CHAT_ID']
-    url = f"https://api.telegram.org/bot{TG_BOT}/sendMessage?parse_mode=Markdown&chat_id={chat_id}&text={message}"
+    url = f"https://api.telegram.org/bot{TG_BOT}/sendMessage"
+    payload = {
+        "parse_mode": "Markdown",
+        "chat_id": chat_id,
+        "text": message
+    }
     if not preview:
-        url += "&disable_web_page_preview=true"
-    response = requests.get(url=url)
+        payload["disable_web_page_preview"] = True
+
+    response = requests.post(url=url, json=payload)
     return response.ok
 
 
@@ -53,7 +59,7 @@ def get_rss_content(rss_name: str, link: str, max_time: datetime, preview: bool 
                 rss.set("summary", summary)
                 rss.set("link", link)
                 rss.save()
-            
+
             time_sleep(2)
 
 
