@@ -30,7 +30,7 @@ def tg(message, preview=False):
     chat_id = os.environ['CHAT_ID']
     url = f"https://api.telegram.org/bot{TG_BOT}/sendMessage"
     payload = {
-        "parse_mode": "Markdown",
+        "parse_mode": "html",
         "chat_id": chat_id,
         "text": message
     }
@@ -38,7 +38,12 @@ def tg(message, preview=False):
         payload["disable_web_page_preview"] = True
 
     response = requests.post(url=url, json=payload)
-    return response.ok
+    if response.ok:
+        return True
+    else:
+        logging.error(response.status_code)
+        logging.error(response.text)
+        return False
 
 
 def get_rss_content(rss_name: str, link: str, max_time: datetime, preview: bool = False):
@@ -49,7 +54,7 @@ def get_rss_content(rss_name: str, link: str, max_time: datetime, preview: bool 
             title = html_clean(new["title"]).strip()
             link = new.get("link")
             summary = html_clean(new.get("summary")).strip()
-            msg = f"""*{rss_name}*\n[{title}]({link})\n{summary[:100]}\nTime: {publish_time.strftime("%Y-%m-%d %H:%M:%S")}"""
+            msg = f"""<b>{rss_name}</b>\n<a href="{link}">{title}</a>\n<a>{summary[:100]}</a>\n<a>Time: {publish_time.strftime("%Y-%m-%d %H:%M:%S")}</a>"""
             if tg(msg, preview):
                 logging.info(f"{rss_name}{title}{link}")
                 rss = RSS()
@@ -59,7 +64,8 @@ def get_rss_content(rss_name: str, link: str, max_time: datetime, preview: bool 
                 rss.set("summary", summary)
                 rss.set("link", link)
                 rss.save()
-
+            else:
+                break
             time_sleep(2)
 
 
@@ -72,6 +78,11 @@ def get_max_time(rss_name):
         return max_time.get('publish_time')
     except:
         return datetime.now() - timedelta(days=10)
+
+
+@engine.define
+def send_tg(**params):
+    return tg(params.get("message"))
 
 
 @engine.define
