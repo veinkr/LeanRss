@@ -10,6 +10,7 @@ import re
 from dateutil.parser import parse as time_parse
 from time import sleep as time_sleep
 import logging
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 engine = Engine()
 RSS = Object.extend('RSS')
@@ -23,6 +24,7 @@ def html_clean(html):
     return html
 
 
+@retry(stop=stop_after_attempt(7), wait=wait_exponential(multiplier=1, min=4, max=20))
 def tg(message):
     TG_BOT = os.environ['TG_BOT']
     chat_id = os.environ['CHAT_ID']
