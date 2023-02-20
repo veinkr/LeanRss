@@ -75,7 +75,6 @@ def pull_rss(**params):
         ("远程.work", "https://rsshub.app/remote-work/all", False),
         ("500px-部落影集", "https://rsshub.app/500px/tribe/set/f5de0b8aa6d54ec486f5e79616418001", False),
         ("DailyArt 每日艺术", "https://rsshub.app/dailyart/zh", True),
-        ("Bing 壁纸", "https://rsshub.app/bing", True)
     ]
     for rss_name, link, preview in rss_list:
         max_time = get_max_time(rss_name)
