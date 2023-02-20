@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 import re
 from dateutil.parser import parse as time_parse
 from time import sleep as time_sleep
+import logging
 
 engine = Engine()
 RSS = Object.extend('RSS')
@@ -47,7 +48,7 @@ def get_rss_content(rss_name: str, link: str, max_time: datetime):
             rss.set("summary", summary)
             rss.set("link", link)
             rss.save()
-
+            logging.info(f"{rss_name}{title}{link}")
             time_sleep(2)
 
 
@@ -68,6 +69,9 @@ def pull_rss(**params):
         ("电鸭", "https://rsshub.app/eleduck/jobs"),
         ("AI研习社-New", "https://rsshub.app/aiyanxishe/all/new"),
         ("远程.work", "https://rsshub.app/remote-work/all"),
+        ("500px-部落影集", "https://rsshub.app/500px/tribe/set/f5de0b8aa6d54ec486f5e79616418001"),
+        ("DailyArt 每日艺术", "https://rsshub.app/dailyart/zh"),
+        ("Bing 壁纸", "https://rsshub.app/bing")
     ]
     for rss_name, link in rss_list:
         max_time = get_max_time(rss_name)
