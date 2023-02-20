@@ -36,7 +36,7 @@ def tg(message, preview=False):
 
 def get_rss_content(rss_name: str, link: str, max_time: datetime, preview: bool = False):
     feed = feedparser.parse(link)
-    for new in feed["entries"]:
+    for new in sorted(feed["entries"], key=lambda x: time_parse(x["published"])):
         publish_time = time_parse(new["published"])
         if publish_time.timestamp() > max_time.timestamp():
             title = html_clean(new["title"]).strip()
